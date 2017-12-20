@@ -5,7 +5,7 @@
 ## 使用 ##
 下載或是 clone repository, 執行腳本, 編譯過程將使用 [ijkplayer] default 設定.
 
-```shell
+```
 ./ijkplayer-builder.sh <#branch#>
 ```
 
