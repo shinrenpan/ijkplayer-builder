@@ -1,18 +1,32 @@
+#!/bin/bash
+
 set -e
 
+DEFAULT_BRANCH='master'
+BRANCH=${1:-$DEFAULT_BRANCH}
 CLONE_PATH="${HOME}/Downloads/ijkplayer"
 FRAMEWORK_NAME="IJKMediaFramework"
-VERSION="k0.7.6"
 
-do_clone_and_checkout()
+do_remove_exist_folder()
 {
     if [ -d ${CLONE_PATH} ]; then
         rm -rf ${CLONE_PATH}
     fi
+}
 
+do_clone_and_checkout()
+{
     git clone "https://github.com/Bilibili/ijkplayer.git" ${CLONE_PATH}
     cd ${CLONE_PATH}
-    git checkout -B latest ${VERSION}
+
+    if git show-ref --quiet refs/heads/${BRANCH}; then
+        printf "\n\n\033[1;37mStart build at branch: ${BRANCH}\033[0m\n\n"
+        git checkout -B latest ${BRANCH}
+    else
+        do_remove_exist_folder
+        printf "\n\033[1;31mBuild fail no branch: ${BRANCH}\033[0m\n\n"
+        exit 1
+    fi
 }
 
 do_run_ijkplayer_script()
@@ -50,15 +64,17 @@ do_lipo_framework()
     lipo -create -output "${HOME}/Desktop/${FRAMEWORK_NAME}.framework/${FRAMEWORK_NAME}" "build/Release-iphoneos/${FRAMEWORK_NAME}.framework/${FRAMEWORK_NAME}" "build/Release-iphonesimulator/${FRAMEWORK_NAME}.framework/${FRAMEWORK_NAME}"
 
     # 修改版本號
-    /usr/libexec/PlistBuddy -c "Set CFBundleShortVersionString ${VERSION}" "${HOME}/Desktop/${FRAMEWORK_NAME}.framework/Info.plist"
+    /usr/libexec/PlistBuddy -c "Set CFBundleShortVersionString ${BRANCH}" "${HOME}/Desktop/${FRAMEWORK_NAME}.framework/Info.plist"
 
     if [ -d ${CLONE_PATH} ]; then
         rm -rf ${CLONE_PATH}
     fi
 }
 
+do_remove_exist_folder
 do_clone_and_checkout
 do_run_ijkplayer_script
 do_build_device_framework
 do_build_simulator_framework
 do_lipo_framework
+
