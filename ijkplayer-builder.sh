@@ -85,7 +85,7 @@ do_lipo_framework()
     # 修改版本號
     /usr/libexec/PlistBuddy -c "Set CFBundleShortVersionString ${TARGET}" "${HOME}/Desktop/${FRAMEWORK_NAME}.framework/Info.plist"
 
-    printf "\n\n\033[1;37mStart build at branch(tag): ${TARGET} Success!!!\033[0m\n\n"
+    printf "\n\n\033[1;37mBuild at branch(tag): ${TARGET} Success!!!\033[0m\n\n"
 }
 
 do_clone_and_checkout
