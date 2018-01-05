@@ -7,23 +7,21 @@ TARGET=${1:-$DEFAULT_TARGET}
 CLONE_PATH="${HOME}/Downloads/ijkplayer"
 FRAMEWORK_NAME="IJKMediaFramework"
 
-do_remove_exist_folder()
-{
-    if [ -d ${CLONE_PATH} ]; then
-        rm -rf ${CLONE_PATH}
-    fi
-}
-
 do_clone_and_checkout()
 {
-    git clone "https://github.com/Bilibili/ijkplayer.git" ${CLONE_PATH}
-    cd ${CLONE_PATH}
+    if [ -d ${CLONE_PATH} ]; then
+        cd ${CLONE_PATH}
+        git checkout master
+        git pull    
+    else
+        git clone "https://github.com/Bilibili/ijkplayer.git" ${CLONE_PATH}
+        cd ${CLONE_PATH}
+    fi
 
     if git rev-parse $1 >/dev/null 2>&1; then
         printf "\n\n\033[1;37mStart build at branch(tag): ${TARGET}\033[0m\n\n"
         git checkout ${TARGET}
     else
-        do_remove_exist_folder
         printf "\n\033[1;31mBuild fail no branch(tag): ${TARGET}\033[0m\n\n"
         exit 1
     fi
@@ -32,9 +30,12 @@ do_clone_and_checkout()
 do_run_ijkplayer_script()
 {
     cd ${CLONE_PATH}
+    ./init-ios-openssl.sh
     ./init-ios.sh
     cd ios
+    ./compile-openssl.sh clean
     ./compile-ffmpeg.sh clean
+    ./compile-openssl.sh all
     ./compile-ffmpeg.sh all
 }
 
@@ -60,21 +61,35 @@ do_build_simulator_framework()
 
 # 利用 lipo 組成 fat framewok 並放到桌面
 do_lipo_framework()
-{
+{   
+    libssl="${CLONE_PATH}/ios/build/universal/lib/libssl.a"
+
+    if [ -f ${libssl} ]; then
+        cp ${libssl} "${HOME}/Desktop"
+    else
+        printf "\n\033[1;31mMissing ${libssl}\033[0m\n\n"
+        exit 1
+    fi
+
+    libcrypto="${CLONE_PATH}/ios/build/universal/lib/libcrypto.a"
+
+    if [ -f ${libcrypto} ]; then
+        cp ${libcrypto} "${HOME}/Desktop"
+    else
+        printf "\n\033[1;31mMissing ${libcrypto}\033[0m\n\n"
+        exit 1
+    fi
+
     lipo -create -output "${HOME}/Desktop/${FRAMEWORK_NAME}.framework/${FRAMEWORK_NAME}" "build/Release-iphoneos/${FRAMEWORK_NAME}.framework/${FRAMEWORK_NAME}" "build/Release-iphonesimulator/${FRAMEWORK_NAME}.framework/${FRAMEWORK_NAME}"
 
     # 修改版本號
     /usr/libexec/PlistBuddy -c "Set CFBundleShortVersionString ${TARGET}" "${HOME}/Desktop/${FRAMEWORK_NAME}.framework/Info.plist"
 
-    if [ -d ${CLONE_PATH} ]; then
-        rm -rf ${CLONE_PATH}
-    fi
+    printf "\n\n\033[1;37mStart build at branch(tag): ${TARGET} Success!!!\033[0m\n\n"
 }
 
-do_remove_exist_folder
 do_clone_and_checkout
 do_run_ijkplayer_script
 do_build_device_framework
 do_build_simulator_framework
 do_lipo_framework
-

@@ -3,14 +3,19 @@
 
 
 ## 使用 ##
-下載或是 clone repository, 執行腳本, 編譯過程將使用 [ijkplayer] default 設定.
+- 下載或是 clone repository
+- 執行腳本:
+	- 命令: ./ijkplayer-builder.sh <#branch or tag#>
+	- 未帶 branch or tag, 將使用 master branch.
+	- 查無 branch or tag, 將不編譯.
 
-```
-./ijkplayer-builder.sh <#branch or tag#>
+**例如編譯 tag k0.7.4**
+
+```shell
+./ijkplayer-builder.sh k0.7.4
 ```
 
-> branch(tag) 未輸入將直接編譯 master branch 版本, 未存在的 branch(tag) 將不編譯, 並移除 clone 的 folder.  
-> 編譯完成也會將 clone 的 folder 刪除.
+> 編譯過程將使用 [ijkplayer] default [設定][default].
 
 確保網路連線順暢, 然後泡杯咖啡等待. :coffee:
 
@@ -23,3 +28,4 @@
 
 
 [ijkplayer]: https://github.com/Bilibili/ijkplayer
+[default]: https://github.com/Bilibili/ijkplayer/blob/master/config/module.sh
