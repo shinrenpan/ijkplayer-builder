@@ -19,7 +19,7 @@
 
 確保網路連線順暢, 然後泡杯咖啡等待. :coffee:
 
-一切順利的話 __IJKMediaFramework.framework__ 將會編譯到你的桌面.
+一切順利的話 **IJKMediaFramework.framework**, **libssl.a**, **libcrypto.a** 將會編譯到你的桌面.
 
 編譯完的 framework 支援, armv7, i386, x86_64, arm64.
 
